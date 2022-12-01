@@ -8,6 +8,16 @@ defmodule Phoenix.Socket.V2.JSONSerializer do
 
   alias Phoenix.Socket.{Broadcast, Message, Reply}
 
+  @push_atoms [
+    :text,
+    :binary
+  ]
+
+  @impl true
+  def fastlane!({:socket_push, x, data}) when x in @push_atoms do
+    {:socket_push, x, data}
+  end
+
   @impl true
   def fastlane!(%Broadcast{payload: {:binary, data}} = msg) do
     topic_size = byte_size!(msg.topic, :topic, 255)
@@ -32,6 +42,11 @@ defmodule Phoenix.Socket.V2.JSONSerializer do
 
   def fastlane!(%Broadcast{payload: invalid}) do
     raise ArgumentError, "expected broadcasted payload to be a map, got: #{inspect(invalid)}"
+  end
+
+  @impl true
+  def encode!({:socket_push, x, data}) when x in @push_atoms do
+    {:socket_push, x, data}
   end
 
   @impl true

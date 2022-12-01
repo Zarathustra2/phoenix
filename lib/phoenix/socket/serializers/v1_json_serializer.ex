@@ -4,10 +4,25 @@ defmodule Phoenix.Socket.V1.JSONSerializer do
 
   alias Phoenix.Socket.{Broadcast, Message, Reply}
 
+  @push_atoms [
+    :text,
+    :binary
+  ]
+
+  @impl true
+  def fastlane!({:socket_push, x, data}) when x in @push_atoms do
+    {:socket_push, x, data}
+  end
+
   @impl true
   def fastlane!(%Broadcast{} = msg) do
     map = %Message{topic: msg.topic, event: msg.event, payload: msg.payload}
     {:socket_push, :text, encode_v1_fields_only(map)}
+  end
+
+  @impl true
+  def encode!({:socket_push, x, data}) when x in @push_atoms do
+    {:socket_push, x, data}
   end
 
   @impl true
